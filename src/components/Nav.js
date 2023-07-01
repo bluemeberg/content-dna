@@ -3,25 +3,24 @@ import styled from "styled-components";
 import { serverInstance } from "../api/axios";
 
 const Nav = (props) => {
-  const handleClick = async () => {
-    const result = await serverInstance.get("/feed/get", {
-      params: {
-        agentID: 32,
-      },
-    });
-    console.log(result);
-  };
+  // const handleClick = async () => {
+  //   const result = await serverInstance.get("/feed/get", {
+  //     params: {
+  //       agentID: 32,
+  //     },
+  //   });
+  //   console.log(result);
+  // };
 
   return (
     <NavWrapper>
       <Logo>
         {props.color !== "white" ? (
-          <div className="logo__title">RUC.P</div>
+          <div className="logo__title">MIJI</div>
         ) : (
-          <div className="logo__title-white">RUC.P</div>
+          <div className="logo__title-white">MIJI</div>
         )}
       </Logo>
-      <button onClick={handleClick}>클릭</button>
     </NavWrapper>
   );
 };
@@ -52,11 +51,18 @@ const Logo = styled.a`
     color: black;
     font-weight: 700;
     padding: 20px;
+    @media (max-width: 1200px) {
+      font-size: 20px;
+    }
   }
   .logo__title-white {
     font-size: 32px;
     color: white;
     font-weight: 700;
     padding: 20px;
+    @media (max-width: 1200px) {
+      font-size: 20px;
+      padding-left: 0px;
+    }
   }
 `;

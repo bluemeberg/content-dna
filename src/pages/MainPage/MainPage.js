@@ -7,7 +7,7 @@ import Nav from "../../components/Nav";
 const MainPage = () => {
   return (
     <Container>
-      <Nav />
+      <Nav color="white" />
       <Banner />
       <MainImage />
     </Container>
@@ -21,6 +21,7 @@ const Container = styled.main`
   min-height: calc(100vh - 250px);
   overflow-x: hidden;
   display: block;
-  top: 72px;
   padding: 0 calc(3.5vw + 5px);
+  background: #1c1e27;
+  height: 100vh;
 `;

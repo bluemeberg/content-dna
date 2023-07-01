@@ -101,12 +101,12 @@ const LoadingPage = () => {
   }, [location.state.test]);
   return (
     <Container>
-      <Nav />
-      <Title>당신의 콘텐츠 성향을 분석하고 있습니다...</Title>
-      <SubTitle>최대 1분 정도가 소요될 수 있습니다.</SubTitle>
+      <Nav color="white" />
       <Image>
-        <img src="/images/loading.png" alt="loading" />
+        <img src="/images/LoadingYoutube.png" alt="loading" />
       </Image>
+      <Title>Loading DNA...</Title>
+      <SubTitle>최대 1분 정도가 소요될 수 있습니다.</SubTitle>
     </Container>
   );
 };
@@ -118,28 +118,33 @@ const Container = styled.main`
   min-height: calc(100vh - 250px);
   overflow-x: hidden;
   display: block;
-  top: 72px;
   padding: 0 calc(3.5vw + 5px);
+  background: #1c1e27;
+  height: 100vh;
 `;
 
 const Title = styled.div`
-  display: flex;
-  justify-content: center;
-  font-size: 32px;
-  font-weight: 700;
-  margin-top: 100px;
+  color: var(--white-white-100, #fff);
+  text-align: center;
+  /* Mobile_Font/Title03_20_R */
+  font-size: 20px;
+  font-family: Roboto;
+  line-height: 30px;
+  letter-spacing: 0.2px;
 `;
 
 const SubTitle = styled.div`
   display: flex;
   justify-content: center;
-  font-size: 20px;
+  font-size: 16px;
   margin-top: 12px;
+  color: white;
 `;
 
 const Image = styled.div`
   display: flex;
   justify-content: center;
+  margin-top: 80px;
   img {
     width: 60%;
   }
