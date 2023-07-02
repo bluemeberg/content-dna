@@ -37,8 +37,8 @@ const DNAContent = styled.div`
     margin-right: 8px;
     min-width: 180px;
     @media (max-width: 1200px) {
-      max-width: 90px;
-      min-width: 90px;
+      max-width: 100px;
+      min-width: 100px;
       font-size: 16px;
       margin-right: 8px;
     }

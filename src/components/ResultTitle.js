@@ -26,6 +26,21 @@ const Title = styled.div`
       font-size: 14px;
     }
   }
+  .subTitleFirst {
+    text-align: center;
+    font-size: 16px;
+    line-height: 28px;
+    letter-spacing: 0.16px;
+    color: var(--neutral-neutral-40, #ccd4df);
+    display: flex;
+    align-items: center;
+    img {
+      margin-left: 20px;
+    }
+    @media (max-width: 1200px) {
+      font-size: 14px;
+    }
+  }
   @media (max-width: 1200px) {
     width: 320px;
     font-size: 18px;

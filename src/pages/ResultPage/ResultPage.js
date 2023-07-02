@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
+import { youtubeDataAPIInstacne, youtubeOauthAPI } from "../../api/axios";
 import { CategoryTitle } from "../../components/CategoryTitle";
 import Channel from "../../components/Channel";
 import ChannelThumbnail from "../../components/ChannelThumbnail";
@@ -17,12 +18,76 @@ import { convertToShortNumber, formatNumber } from "../../ustils/FortmatNumber";
 
 const ResultPage = () => {
   const location = useLocation();
-  console.log(location);
+  console.log(location.state);
+  location.state.res = location.state.dna.sort(
+    (a, b) => b.dnacount - a.dnacount
+  );
+  console.log(location.state.dna);
+  let favoriteChannels = [];
+  const [favorite, setFavorite] = useState([]);
+
+  async function getLikedChannelNumbers() {
+    let videos = location.state.videoList;
+    const channelCounts = videos.reduce((counts, video) => {
+      const channelName = video.channelID;
+      counts[channelName] = (counts[channelName] || 0) + 1;
+      return counts;
+    }, {});
+    // 중복되는 채널 갯수가 많은 순으로 정렬
+    // const sortedVideos = [...videos].sort((a, b) => {
+    //   const channelA = a.channelTitle;
+    //   const channelB = b.channelTitle;
+    //   return channelCounts[channelB] - channelCounts[channelA];
+    // });
+    const sortedFruits = Object.entries(channelCounts).sort(
+      (a, b) => b[1] - a[1]
+    );
+    console.log(sortedFruits);
+    // console.log(sortedFruits[0][1] / location.state.res.videoList.length);
+    for (let i = 0; i < sortedFruits.slice(0, 6).length; i++) {
+      let channelId = sortedFruits[i][0];
+      const result = await youtubeDataAPIInstacne.get("/channels", {
+        params: {
+          key: youtubeOauthAPI,
+          part: "snippet, statistics,contentDetails",
+          id: channelId,
+        },
+      });
+      console.log(result.data);
+      let channelRatio = (
+        (sortedFruits[i][1] / location.state.videoList.length) *
+        100
+      ).toFixed(2);
+      let channelInfo = {
+        channelID: channelId,
+        channelRatio: channelRatio,
+        channelThumbnail: result.data.items[0].snippet.thumbnails.medium.url,
+        channelName: result.data.items[0].snippet.title,
+        channelSubs: result.data.items[0].statistics.subscriberCount,
+      };
+      favoriteChannels = [...favoriteChannels, channelInfo];
+    }
+    setFavorite(favoriteChannels);
+  }
+  console.log(favorite);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getLikedChannelNumbers();
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Container>
       <Nav color="white" />
       <ContainerBox>
-        <Title>KHGM님의 콘텐츠 성향 레포트</Title>
+        <Title>
+          {location.state.name}님의 콘텐츠 성향 레포트
+          <div className="subTitleFirst">
+            총 {location.state.videoList.length}개의 좋아한 유튜브 콘텐츠를 분석
+            <img src="/images/Share.png" alt="share" width="16px" />
+          </div>
+        </Title>
         <Divider />
         <DNABox>
           <DNAImage>
@@ -31,22 +96,42 @@ const ResultPage = () => {
           </DNAImage>
           <DNAType>
             <DNAContent>
-              <div className="category">Basketball</div>
+              <div className="category">{location.state.dna[0].dnatype}</div>
               <div className="categoryNickname">슛팅 미친이</div>
-              <div className="contentRatio">24%</div>
+              <div className="contentRatio">
+                {(
+                  (location.state.dna[0].dnacount / location.state.totalCount) *
+                  100
+                ).toFixed(1)}
+                %
+              </div>
             </DNAContent>
             <DNAContent>
-              <div className="category">Business</div>
+              <div className="category"> {location.state.dna[1].dnatype}</div>
               <div className="categoryNickname">비즈니스 중독자</div>
-              <div className="contentRatio">19%</div>
+              <div className="contentRatio">
+                {" "}
+                {(
+                  (location.state.dna[1].dnacount / location.state.totalCount) *
+                  100
+                ).toFixed(1)}
+                %
+              </div>
             </DNAContent>
             <DNAContent>
               <div className="category">
                 {/* <div className="categoryName">SelfImprovement&Motivation</div> */}
-                SelfImprovement&Motivation
+                {location.state.dna[2].dnatype}
               </div>
               <div className="categoryNickname">꽃을 사랑하는 플로러</div>
-              <div className="contentRatio">11%</div>
+              <div className="contentRatio">
+                {" "}
+                {(
+                  (location.state.dna[2].dnacount / location.state.totalCount) *
+                  100
+                ).toFixed(1)}
+                %
+              </div>
             </DNAContent>
             <DNADisclaimer>
               뜨거운 경기에 푹 빠지는 동안 창의적인 비즈니스 아이디어를
@@ -55,87 +140,27 @@ const ResultPage = () => {
             </DNADisclaimer>
           </DNAType>
         </DNABox>
-        <Title sub="top5">KHGM님이 좋아하는 채널 Top6</Title>
+        <Title sub="top5">{location.state.name}님이 좋아하는 채널 Top6</Title>
         {/* Favorite Channels */}
         <ChannelBox>
-          <Channel>
-            <ChannelThumbnail>
-              <img
-                src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                alt="favorite"
-              />
-            </ChannelThumbnail>
-            <ChannelTitle>
-              <div className="channelTitle">감스트</div>
-              <div className="channelSubscriber">24.5만</div>
-            </ChannelTitle>
-          </Channel>
-          <Channel>
-            <ChannelThumbnail>
-              <img
-                src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                alt="favorite"
-              />
-            </ChannelThumbnail>
-            <ChannelTitle>
-              <div className="channelTitle">식물집사 독일 카씨</div>
-              <div className="channelSubscriber">24.5만</div>
-            </ChannelTitle>
-          </Channel>
-          <Channel>
-            <ChannelThumbnail>
-              <img
-                src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                alt="favorite"
-              />
-            </ChannelThumbnail>
-            <ChannelTitle>
-              <div className="channelTitle">식물집사 독일 카씨</div>
-              <div className="channelSubscriber">
-                {convertToShortNumber(48500)}
-              </div>
-            </ChannelTitle>
-          </Channel>
-          <Channel>
-            <ChannelThumbnail>
-              <img
-                src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                alt="favorite"
-              />
-            </ChannelThumbnail>
-            <ChannelTitle>
-              <div className="channelTitle">식물집사 독일 카씨</div>
-              <div className="channelSubscriber">24.5만</div>
-            </ChannelTitle>
-          </Channel>
-          <Channel>
-            <ChannelThumbnail>
-              <img
-                src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                alt="favorite"
-              />
-            </ChannelThumbnail>
-            <ChannelTitle>
-              <div className="channelTitle">식물집사 독일 카씨</div>
-              <div className="channelSubscriber">24.5만</div>
-            </ChannelTitle>
-          </Channel>
-          <Channel>
-            <ChannelThumbnail>
-              <img
-                src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                alt="favorite"
-              />
-            </ChannelThumbnail>
-            <ChannelTitle>
-              <div className="channelTitle">식물집사 독일 카씨</div>
-              <div className="channelSubscriber">24.5만</div>
-            </ChannelTitle>
-          </Channel>
+          {favorite.map((item) => (
+            <Channel key={item.channelID}>
+              <ChannelThumbnail>
+                <img src={item.channelThumbnail} alt="favorite" />
+              </ChannelThumbnail>
+              <ChannelTitle>
+                <div className="channelTitle">{item.channelName}</div>
+                <div className="channelSubscriber">
+                  {convertToShortNumber(item.channelSubs)}
+                </div>
+                <div className="channelRatio">({item.channelRatio}%)</div>
+              </ChannelTitle>
+            </Channel>
+          ))}
         </ChannelBox>
         <Title sub="2">
-          KHGM님이 아직 좋아하지 않지만 <br></br> 성향에 맞을 수 있는 채널을
-          골라봤어
+          {location.state.name}님이 아직 좋아하지 않지만 <br></br> 성향에 맞을
+          수 있는 채널을 골라봤어
           <div className="subTitle">
             유튜브 인기 영상의 채널 그리고 당신과 동일한 성향을 가진 "157"명의
             사람들이 구독하고 있는 채널입니다.<br></br>새로운 채널을
@@ -418,9 +443,9 @@ const ContainerBox = styled.div`
   );
   box-shadow: -4px -4px 10px rgba(0, 0, 0, 0.75) inset;
   @media (max-width: 1200px) {
-    width: 320px;
+    width: 340px;
     margin-top: 80px;
-    height: 1060px;
+    height: 1120px;
   }
 `;
 

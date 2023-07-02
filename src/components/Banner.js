@@ -17,9 +17,15 @@ const Banner = () => {
       .then()
       .then(async (result) => {
         console.log(result._tokenResponse.oauthAccessToken);
+        console.log(result.user.displayName);
+        console.log(result.user.email);
         // await handleYoutubeInformation(result._tokenResponse.oauthAccessToken);
         navigate(`/loading`, {
-          state: { test: result._tokenResponse.oauthAccessToken },
+          state: {
+            token: result._tokenResponse.oauthAccessToken,
+            name: result.user.displayName,
+            email: result.user.email,
+          },
         });
       })
       .catch((error) => alert(error.message));

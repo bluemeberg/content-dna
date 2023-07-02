@@ -27,6 +27,16 @@ const ChannelTitle = styled.div`
       margin-top: 0px;
     }
   }
+  .channelRatio {
+    font-size: 12px;
+    font-weight: 100;
+    line-height: 12px;
+    text-align: center;
+    margin-top: 8px;
+    @media (max-width: 1200px) {
+      margin-top: 4px;
+    }
+  }
 `;
 
 export default ChannelTitle;
