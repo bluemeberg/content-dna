@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { youtubeDataAPIInstacne, youtubeOauthAPI } from "../../api/axios";
 import { CategoryTitle } from "../../components/CategoryTitle";
 import Channel from "../../components/Channel";
+import ChannelModal from "../../components/ChannelModal";
 import ChannelThumbnail from "../../components/ChannelThumbnail";
 import ChannelTitle from "../../components/ChannelTitle";
 import DNAContent from "../../components/DNAContent";
@@ -14,15 +15,33 @@ import Nav from "../../components/Nav";
 import Title from "../../components/ResultTitle";
 import { UnknownChannelBlur } from "../../components/UnknownChannelBlur";
 import UnknownChannelTitle from "../../components/UnknownChannelTitle";
+import { dnaData } from "../../test/mock";
 import { convertToShortNumber, formatNumber } from "../../ustils/FortmatNumber";
 
 const ResultPage = () => {
   const location = useLocation();
   console.log(location.state);
-  location.state.res = location.state.dna.sort(
+  if (location.state === null) {
+    location.state = dnaData;
+  }
+  location.state.dna = location.state.dna.sort(
     (a, b) => b.dnacount - a.dnacount
   );
   console.log(location.state.dna);
+
+  // 오프라인
+  for (let i = 0; i < location.state.dna.length; i++) {
+    location.state.dna[i].dnasubTitle = location.state.unknown.dnasubTitle[i];
+  }
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [unknownChannelSelected, setUnknownChannelmovieSelected] = useState({});
+  // detail info of unknown channel
+  const handleUnknownClick = useCallback((channel) => {
+    setModalOpen(true);
+    setUnknownChannelmovieSelected(channel);
+  });
+
   let favoriteChannels = [];
   const [favorite, setFavorite] = useState([]);
 
@@ -33,12 +52,6 @@ const ResultPage = () => {
       counts[channelName] = (counts[channelName] || 0) + 1;
       return counts;
     }, {});
-    // 중복되는 채널 갯수가 많은 순으로 정렬
-    // const sortedVideos = [...videos].sort((a, b) => {
-    //   const channelA = a.channelTitle;
-    //   const channelB = b.channelTitle;
-    //   return channelCounts[channelB] - channelCounts[channelA];
-    // });
     const sortedFruits = Object.entries(channelCounts).sort(
       (a, b) => b[1] - a[1]
     );
@@ -70,6 +83,7 @@ const ResultPage = () => {
     setFavorite(favoriteChannels);
   }
   console.log(favorite);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       getLikedChannelNumbers();
@@ -92,51 +106,23 @@ const ResultPage = () => {
         <DNABox>
           <DNAImage>
             <img src="/images/Monkey_1.png" alt="DNAImage" />
-            <div className="DNATitle">꽃장이들의 농구경영</div>
+            <div className="DNATitle">{location.state.unknown.dnatitle}</div>
           </DNAImage>
           <DNAType>
-            <DNAContent>
-              <div className="category">{location.state.dna[0].dnatype}</div>
-              <div className="categoryNickname">슛팅 미친이</div>
-              <div className="contentRatio">
-                {(
-                  (location.state.dna[0].dnacount / location.state.totalCount) *
-                  100
-                ).toFixed(1)}
-                %
-              </div>
-            </DNAContent>
-            <DNAContent>
-              <div className="category"> {location.state.dna[1].dnatype}</div>
-              <div className="categoryNickname">비즈니스 중독자</div>
-              <div className="contentRatio">
-                {" "}
-                {(
-                  (location.state.dna[1].dnacount / location.state.totalCount) *
-                  100
-                ).toFixed(1)}
-                %
-              </div>
-            </DNAContent>
-            <DNAContent>
-              <div className="category">
-                {/* <div className="categoryName">SelfImprovement&Motivation</div> */}
-                {location.state.dna[2].dnatype}
-              </div>
-              <div className="categoryNickname">꽃을 사랑하는 플로러</div>
-              <div className="contentRatio">
-                {" "}
-                {(
-                  (location.state.dna[2].dnacount / location.state.totalCount) *
-                  100
-                ).toFixed(1)}
-                %
-              </div>
-            </DNAContent>
+            {location.state.dna.slice(0, 3).map((item, index) => (
+              <DNAContent key={index}>
+                <div className="category">{item.dnatype}</div>
+                <div className="categoryNickname">{item.dnasubTitle}</div>
+                <div className="contentRatio">
+                  {((item.dnacount / location.state.totalCount) * 100).toFixed(
+                    1
+                  )}
+                  %
+                </div>
+              </DNAContent>
+            ))}
             <DNADisclaimer>
-              뜨거운 경기에 푹 빠지는 동안 창의적인 비즈니스 아이디어를
-              고민하며, 꽃을 피우며 세상을 아름답게 만들기 위한 비전을 꿈꾸는
-              사람입니다.
+              {location.state.unknown.dnadescription}
             </DNADisclaimer>
           </DNAType>
         </DNABox>
@@ -168,220 +154,25 @@ const ResultPage = () => {
           </div>
         </Title>
         <UnknownChannelBox>
-          <CategoryTitle>Flower</CategoryTitle>
           <ChannelBox>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <UnknownChannel>
-                <UnknownChannelBlur>
-                  UNKNOWN
-                  <div className="locked">
-                    <img src="/images/lock.png" alt="lock" />
-                    LOCKED
-                  </div>
-                </UnknownChannelBlur>
-                <ChannelThumbnail>
-                  <img
-                    src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                    alt="favorite"
-                  />
-                </ChannelThumbnail>
-                {/* <UnknownChannelTitle></UnknownChannelTitle> */}
-                <UnknownChannelTitle>
-                  <div className="question">?????</div>
-                  <div className="channelTitle">식물집사 독일 카씨</div>
-                  <div className="channelSubscriber">24.5만</div>
-                </UnknownChannelTitle>
-              </UnknownChannel>
-            </Channel>
-          </ChannelBox>
-          <CategoryTitle>IT/Tech</CategoryTitle>
-          <ChannelBox>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-          </ChannelBox>
-          <CategoryTitle>IT/Tech</CategoryTitle>
-          <ChannelBox>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
-            <Channel>
-              <ChannelThumbnail>
-                <img
-                  src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
-                  alt="favorite"
-                />
-              </ChannelThumbnail>
-              <ChannelTitle>
-                <div className="channelTitle">식물집사 독일 카씨</div>
-                <div className="channelSubscriber">24.5만</div>
-              </ChannelTitle>
-            </Channel>
+            {location.state.unknown.unknown[1].channelList
+              .slice(0, 6)
+              .map((item) => (
+                <Channel onClick={() => handleUnknownClick(item)}>
+                  <ChannelThumbnail>
+                    <img src={item.channelThumbnail} alt="favorite" />
+                  </ChannelThumbnail>
+                  <ChannelTitle>
+                    <div className="channelTitle">{item.channelTitle}</div>
+                    <div className="channelSubscriber">
+                      {convertToShortNumber(item.channelSubscribeCount)}
+                    </div>
+                  </ChannelTitle>
+                </Channel>
+              ))}
           </ChannelBox>
         </UnknownChannelBox>
-        <BlurBox></BlurBox>
+        {/* <BlurBox></BlurBox> */}
         <DownloadTitle>
           DOWNLOAD APP
           <div className="subTitle">TO FIND OUT MORE UNKNOWN CHANNELS</div>{" "}
@@ -411,6 +202,12 @@ const ResultPage = () => {
       </ContainerBox>
       {/* 내가 좋아할 만한 채널 알려주기 */}
       {/* 카테고리 베이스 */}
+      {/* {modalOpen && (
+        <ChannelModal
+          unknownChannelSelected={unknownChannelSelected}
+          setModalOpen={setModalOpen}
+        />
+      )} */}
     </Container>
   );
 };

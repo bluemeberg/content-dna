@@ -6,7 +6,7 @@ const DownloadTitle = styled.div`
   color: white;
   display: flex;
   justify-content: center;
-  margin-top: -140px;
+  /* margin-top: -140px; */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -27,7 +27,7 @@ const DownloadTitle = styled.div`
   @media (max-width: 1200px) {
     width: 320px;
     font-size: 18px;
-    margin-top: -240px;
+    /* margin-top: -240px; */
   }
 `;
 

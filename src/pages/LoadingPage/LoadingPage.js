@@ -1,37 +1,44 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import {
   localServerInstance,
+  serverInstance,
   youtubeDataAPIInstacne,
   youtubeOauthAPI,
 } from "../../api/axios";
 import Nav from "../../components/Nav";
+import ProgressBar from "../../components/Progressbar";
 
 const LoadingPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [videos, setVideos] = useState([]);
   const [dna, setDNA] = useState([]);
-
-  async function processBatch(data, batchSize) {
+  const [progressData, setProgressData] = useState([]);
+  const [progressValue, setProgressValue] = useState(0);
+  // useCallback
+  const [resultNoti, setResultNoti] = useState();
+  const handleProcessBatch = async (data, batchSize) => {
     const batches = [];
     const numBatches = Math.ceil(data.length / batchSize);
-
+    console.log(numBatches);
     for (let i = 0; i < numBatches; i++) {
       const start = i * batchSize;
       const end = start + batchSize;
       const batch = data.slice(start, end);
       // const result = await fetchData(batch);
-      const result = await localServerInstance.post("/chatgpt/content/dna", {
+      const result = await serverInstance.post("/chatgpt/content/dna", {
         dnaData: batch,
       });
       batches.push(result.data);
+      setProgressValue((prevValue) => prevValue + 1);
+      setProgressData([...progressData, result.data]);
     }
     return batches;
-  }
+  };
 
-  const handleYoutubeInformation = async (accessToken, email) => {
+  const handleYoutubeInformation = useCallback(async (accessToken, email) => {
     let allVideos = [];
     let allDNAData = [];
     try {
@@ -68,59 +75,62 @@ const LoadingPage = () => {
       }
       // allVideos = [...allVideos, result.data.items];
       let nextPageToken = result.data.nextPageToken;
+      console.log(nextPageToken);
       let cnt = 0;
-      // while (true) {
-      //   const result = await youtubeDataAPIInstacne.get("/videos", {
-      //     params: {
-      //       key: youtubeOauthAPI,
-      //       part: "snippet, statistics, status,contentDetails",
-      //       myRating: "like",
-      //       maxResults: 50,
-      //       pageToken: nextPageToken,
-      //     },
-      //     headers: {
-      //       Authorization: `Bearer ${accessToken}`,
-      //     },
-      //   });
-      //   for (let i = 0; i < result.data.items.length; i++) {
-      //     if (result.data.items[i].snippet.tags != null) {
-      //       allVideos = [...allVideos, result.data.items[i]];
-      //       const tags = result.data.items[i].snippet.tags.slice(0, 10);
-      //       let data = {
-      //         videoID: result.data.items[i].id,
-      //         videoTitle: result.data.items[i].snippet.title,
-      //         videoThumbnail:
-      //           result.data.items[i].snippet.thumbnails.medium.url,
-      //         videoDuration: result.data.items[i].contentDetails.duration,
-      //         uploadDate: result.data.items[i].snippet.publishedAt,
-      //         categoryID: result.data.items[i].snippet.categoryId,
-      //         channelID: result.data.items[i].snippet.channelId,
-      //         channelTitle: result.data.items[i].snippet.channelTitle,
-      //         description: result.data.items[i].snippet.description,
-      //         videoTags: tags,
-      //       };
-      //       allDNAData = [...allDNAData, data];
+      // if (nextPageToken !== undefined) {
+      //   while (true) {
+      //     const result = await youtubeDataAPIInstacne.get("/videos", {
+      //       params: {
+      //         key: youtubeOauthAPI,
+      //         part: "snippet, statistics, status,contentDetails",
+      //         myRating: "like",
+      //         maxResults: 50,
+      //         pageToken: nextPageToken,
+      //       },
+      //       headers: {
+      //         Authorization: `Bearer ${accessToken}`,
+      //       },
+      //     });
+      //     for (let i = 0; i < result.data.items.length; i++) {
+      //       if (result.data.items[i].snippet.tags != null) {
+      //         allVideos = [...allVideos, result.data.items[i]];
+      //         const tags = result.data.items[i].snippet.tags.slice(0, 10);
+      //         let data = {
+      //           videoID: result.data.items[i].id,
+      //           videoTitle: result.data.items[i].snippet.title,
+      //           videoThumbnail:
+      //             result.data.items[i].snippet.thumbnails.medium.url,
+      //           videoDuration: result.data.items[i].contentDetails.duration,
+      //           uploadDate: result.data.items[i].snippet.publishedAt,
+      //           categoryID: result.data.items[i].snippet.categoryId,
+      //           channelID: result.data.items[i].snippet.channelId,
+      //           channelTitle: result.data.items[i].snippet.channelTitle,
+      //           description: result.data.items[i].snippet.description,
+      //           videoTags: tags,
+      //         };
+      //         allDNAData = [...allDNAData, data];
+      //       }
       //     }
+      //     console.log(result.data.nextPageToken);
+      //     console.log(result.data.items);
+      //     if (!result.data.nextPageToken) {
+      //       break;
+      //     } else if (cnt > 0) {
+      //       // cnt 3 범위가 200개 영상
+      //       break;
+      //     }
+      //     nextPageToken = result.data.nextPageToken;
+      //     cnt += 1;
       //   }
-      //   console.log(result.data.nextPageToken);
-      //   console.log(result.data.items);
-      //   if (!result.data.nextPageToken) {
-      //     break;
-      //   } else if (cnt > 0) {
-      //     // cnt 3 범위가 200개 영상
-      //     break;
-      //   }
-      //   nextPageToken = result.data.nextPageToken;
-      //   cnt += 1;
       // }
       // 서버 송신
       setVideos(allVideos);
       setDNA(allDNAData);
       let anaylzedDNA = [];
-
       // 클라이언트에서 5개씩 쪼개서 응답 받아오기
-      const batches = await processBatch(allDNAData, 3);
+      const batches = await handleProcessBatch(allDNAData, 1);
       console.log(batches);
+
       let dnaCustom = [];
       let channelIds = [];
       let totalCount = 0;
@@ -177,48 +187,14 @@ const LoadingPage = () => {
       // channelIDList = {
       //   channelIDList: channelIDList.join(","),
       // };
-      const result22 = await localServerInstance.get("/chatgpt/unknown", {
+      setProgressValue(100);
+      const result22 = await serverInstance.get("/chatgpt/unknown", {
         params: {
           DNATypeList,
           channelIDList,
         },
       });
       console.log(result22.data);
-      // location.state.res = location.state.dna.sort(
-      //   (a, b) => b.dnacount - a.dnacount
-      // );
-      // 클라이언트에서 100개 한번에 응답 받아오기
-      // const reponse = await localServerInstance.post("/chatgpt/content/dna", {
-      //   dnaData: allDNAData,
-      // });
-
-      // for (let i = 0; i < allDNAData.length; i++) {
-      //   const reponse = await localServerInstance.post("/chatgpt/content/dna", {
-      //     dnaData: allDNAData.slice(i, i + 5),
-      //   });
-      //   i += 5;
-      // }
-      // anaylzedDNA = [...anaylzedDNA, reponse.data.dna];
-      // const reponse1 = await localServerInstance.post("/chatgpt/content/dna", {
-      //   dnaData: allDNAData.slice(6, 10),
-      // });
-      // anaylzedDNA = [...anaylzedDNA, reponse1.data.dna];
-      // const reponse2 = await localServerInstance.post("/chatgpt/content/dna", {
-      //   dnaData: allDNAData.slice(11, 15),
-      // });
-      // anaylzedDNA = [...anaylzedDNA, reponse2.data.dna];
-      // const reponse3 = await localServerInstance.post("/chatgpt/content/dna", {
-      //   dnaData: allDNAData.slice(11, 15),
-      // });
-      // anaylzedDNA = [...anaylzedDNA, reponse2.data.dna];
-      // const reponse3 = await localServerInstance.post("/chatgpt/content/dna", {
-      //   dnaData: allDNAData.slice(11, 15),
-      // });
-      // anaylzedDNA = [...anaylzedDNA, reponse2.data.dna];
-
-      // console.log(reponse.data);
-      // console.log(reponse1.data);
-      // console.log(reponse2.data);
 
       navigate(`/result`, {
         state: {
@@ -232,12 +208,13 @@ const LoadingPage = () => {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, []);
   console.log(videos);
   console.log(dna);
+  console.log(progressData);
   useEffect(() => {
     console.log(location.state);
-    // handleYoutubeInformation(location.state.token, location.state.email);
+    handleYoutubeInformation(location.state.token, location.state.email);
   }, []);
   return (
     <Container>
@@ -246,14 +223,20 @@ const LoadingPage = () => {
         <img src="/images/LoadingYoutube.png" alt="loading" />
       </Image>
       <Title>Loading DNA...</Title>
-      <SubTitle>최대 1분 정도가 소요될 수 있습니다.</SubTitle>
-      <button
-        onClick={() =>
-          handleYoutubeInformation(location.state.token, location.state.email)
-        }
-      >
-        버튼
-      </button>
+      <SubTitle>
+        {videos.length}개의 콘텐츠를 분석중입니다. <br />
+        최대 1분 정도가 소요될 수 있습니다.
+      </SubTitle>
+      <div>
+        <ProgressBar value={progressValue} max={100} />
+      </div>
+      {progressValue === 100 ? (
+        <SubTitle>분석 결과를 불러오고 있습니다. 잠시만 기다려주세요</SubTitle>
+      ) : (
+        progressData.map((item) => <SubTitle>{item.dna[0].dnatype}</SubTitle>)
+      )}
+      <Error>진행이 멈춰있으면 다시 시작하기 버튼을 눌러주세요.</Error>
+      <Button onClick={handleYoutubeInformation}>다시 분석하기</Button>
     </Container>
   );
 };
@@ -286,6 +269,17 @@ const SubTitle = styled.div`
   font-size: 16px;
   margin-top: 12px;
   color: white;
+  margin-bottom: 10px;
+`;
+
+const Error = styled.div`
+  display: flex;
+  display: flex;
+  justify-content: center;
+  font-size: 16px;
+  margin-top: 12px;
+  color: white;
+  margin-top: 200px;
 `;
 
 const Image = styled.div`
@@ -294,5 +288,30 @@ const Image = styled.div`
   margin-top: 80px;
   img {
     width: 60%;
+  }
+`;
+
+const Button = styled.button`
+  @media (max-width: 1440px) {
+    display: flex;
+    width: 160px;
+    height: 40px;
+    padding: 6px 30px;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 126px;
+    background: #050505;
+    color: var(--white-white-100, #fff);
+    text-align: center;
+    font-size: 16px;
+    font-family: Roboto;
+    font-weight: 700;
+    line-height: 42px;
+    letter-spacing: 0.22px;
+    margin-left: 90px;
+    margin-top: 10px;
   }
 `;

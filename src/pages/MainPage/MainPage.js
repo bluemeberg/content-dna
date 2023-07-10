@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
+import { youtubeDataAPIInstacne, youtubeOauthAPI } from "../../api/axios";
 import Banner from "../../components/Banner";
 import MainImage from "../../components/MainImage";
 import Nav from "../../components/Nav";
