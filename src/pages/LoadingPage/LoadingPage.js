@@ -17,6 +17,9 @@ const LoadingPage = () => {
   const [dna, setDNA] = useState([]);
   const [progressData, setProgressData] = useState([]);
   const [progressValue, setProgressValue] = useState(0);
+  const [videoThumbnail, setVideoThumbnail] = useState("");
+  const [videoTitle, setVideoTitle] = useState("");
+  console.log(videoThumbnail);
   // useCallback
   const [resultNoti, setResultNoti] = useState();
   const handleProcessBatch = async (data, batchSize) => {
@@ -34,6 +37,8 @@ const LoadingPage = () => {
       batches.push(result.data);
       setProgressValue((prevValue) => i);
       setProgressData([...progressData, result.data]);
+      setVideoThumbnail(data[i].videoThumbnail);
+      console.log(data);
     }
     return batches;
   };
@@ -49,7 +54,7 @@ const LoadingPage = () => {
           key: youtubeOauthAPI,
           part: "snippet, statistics, status,contentDetails",
           myRating: "like",
-          maxResults: 20,
+          maxResults: 50,
         },
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -117,52 +122,52 @@ const LoadingPage = () => {
       let nextPageToken = result.data.nextPageToken;
       console.log(nextPageToken);
       let cnt = 0;
-      // if (nextPageToken !== undefined) {
-      //   while (true) {
-      //     const result = await youtubeDataAPIInstacne.get("/videos", {
-      //       params: {
-      //         key: youtubeOauthAPI,
-      //         part: "snippet, statistics, status,contentDetails",
-      //         myRating: "like",
-      //         maxResults: 50,
-      //         pageToken: nextPageToken,
-      //       },
-      //       headers: {
-      //         Authorization: `Bearer ${accessToken}`,
-      //       },
-      //     });
-      //     for (let i = 0; i < result.data.items.length; i++) {
-      //       if (result.data.items[i].snippet.tags != null) {
-      //         allVideos = [...allVideos, result.data.items[i]];
-      //         const tags = result.data.items[i].snippet.tags.slice(0, 10);
-      //         let data = {
-      //           videoID: result.data.items[i].id,
-      //           videoTitle: result.data.items[i].snippet.title,
-      //           videoThumbnail:
-      //             result.data.items[i].snippet.thumbnails.medium.url,
-      //           videoDuration: result.data.items[i].contentDetails.duration,
-      //           uploadDate: result.data.items[i].snippet.publishedAt,
-      //           categoryID: result.data.items[i].snippet.categoryId,
-      //           channelID: result.data.items[i].snippet.channelId,
-      //           channelTitle: result.data.items[i].snippet.channelTitle,
-      //           description: result.data.items[i].snippet.description,
-      //           videoTags: tags,
-      //         };
-      //         allDNAData = [...allDNAData, data];
-      //       }
-      //     }
-      //     console.log(result.data.nextPageToken);
-      //     console.log(result.data.items);
-      //     if (!result.data.nextPageToken) {
-      //       break;
-      //     } else if (cnt > 0) {
-      //       // cnt 3 범위가 200개 영상
-      //       break;
-      //     }
-      //     nextPageToken = result.data.nextPageToken;
-      //     cnt += 1;
-      //   }
-      // }
+      if (nextPageToken !== undefined) {
+        while (true) {
+          const result = await youtubeDataAPIInstacne.get("/videos", {
+            params: {
+              key: youtubeOauthAPI,
+              part: "snippet, statistics, status,contentDetails",
+              myRating: "like",
+              maxResults: 50,
+              pageToken: nextPageToken,
+            },
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          for (let i = 0; i < result.data.items.length; i++) {
+            if (result.data.items[i].snippet.tags != null) {
+              allVideos = [...allVideos, result.data.items[i]];
+              const tags = result.data.items[i].snippet.tags.slice(0, 10);
+              let data = {
+                videoID: result.data.items[i].id,
+                videoTitle: result.data.items[i].snippet.title,
+                videoThumbnail:
+                  result.data.items[i].snippet.thumbnails.medium.url,
+                videoDuration: result.data.items[i].contentDetails.duration,
+                uploadDate: result.data.items[i].snippet.publishedAt,
+                categoryID: result.data.items[i].snippet.categoryId,
+                channelID: result.data.items[i].snippet.channelId,
+                channelTitle: result.data.items[i].snippet.channelTitle,
+                description: result.data.items[i].snippet.description,
+                videoTags: tags,
+              };
+              allDNAData = [...allDNAData, data];
+            }
+          }
+          console.log(result.data.nextPageToken);
+          console.log(result.data.items);
+          if (!result.data.nextPageToken) {
+            break;
+          } else if (cnt > 0) {
+            // cnt 3 범위가 200개 영상
+            break;
+          }
+          nextPageToken = result.data.nextPageToken;
+          cnt += 1;
+        }
+      }
       // 서버 송신
       setVideos(allVideos);
       setDNA(allDNAData);
@@ -342,6 +347,7 @@ const LoadingPage = () => {
       ) : (
         progressData.map((item) => <SubTitle>{item.dna[0].dnatype}</SubTitle>)
       )}
+      <img src={videoThumbnail} width={320} height={180}></img>
       <Error>진행이 멈춰있으면 다시 시작하기 버튼을 눌러주세요.</Error>
       <Button onClick={handleYoutubeInformation}>다시 분석하기</Button>
     </Container>

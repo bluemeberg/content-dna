@@ -191,45 +191,53 @@ const ResultPage = () => {
                   {item.detailCategory}
                 </div>
                 <div className="channelElement">
-                  {item.channelList
-                    .slice(0, maxChannelsPerColumn)
-                    .map((channel, channelIndex) => (
-                      <Channel
-                        key={channelIndex}
-                        onClick={() => handleUnknownClick(channel)}
-                      >
-                        <div className="unknownChannel">
-                          <ChannelThumbnail>
-                            <img
-                              src={channel.channelThumbnail}
-                              alt="favorite"
-                            />
-                          </ChannelThumbnail>
-                          <ChannelTitle>
-                            <div className="channelTitle">
-                              {channel.channelTitle}
-                            </div>
-                            <div className="channelSubscriber">
-                              {convertToShortNumber(
-                                channel.channelSubscribeCount
-                              )}
-                            </div>
-                          </ChannelTitle>
-                        </div>
-                      </Channel>
-                    ))}
+                  {item.channelList != null ? (
+                    item.channelList
+                      .slice(0, maxChannelsPerColumn)
+                      .map((channel, channelIndex) => (
+                        <Channel
+                          key={channelIndex}
+                          onClick={() => handleUnknownClick(channel)}
+                        >
+                          <div className="unknownChannel">
+                            <ChannelThumbnail>
+                              <img
+                                src={channel.channelThumbnail}
+                                alt="favorite"
+                              />
+                            </ChannelThumbnail>
+                            <ChannelTitle>
+                              <div className="channelTitle">
+                                {channel.channelTitle}
+                              </div>
+                              {/* <div className="channelSubscriber">
+                                {convertToShortNumber(
+                                  channel.channelSubscribeCount
+                                )}
+                              </div> */}
+                            </ChannelTitle>
+                          </div>
+                        </Channel>
+                      ))
+                  ) : (
+                    <></>
+                  )}
                 </div>
-                {item.channelList.length > maxChannelsPerColumn && (
-                  <div className="moreChannelNoti">
-                    + {item.channelList.length - maxChannelsPerColumn}개의 더
-                    많은 채널이 있습니다.
-                  </div>
+                {item.channelList != null ? (
+                  item.channelList.length > maxChannelsPerColumn && (
+                    <div className="moreChannelNoti">
+                      + {item.channelList.length - maxChannelsPerColumn}개의 더
+                      많은 채널이 있습니다.
+                    </div>
+                  )
+                ) : (
+                  <></>
                 )}
               </div>
             ))}
           </div>
         </UnknownChannelBox>
-        <BlurBox></BlurBox>
+        {/* <BlurBox></BlurBox> */}
         <DownloadTitle>
           DOWNLOAD APP
           <div className="subTitle">TO FIND OUT MORE UNKNOWN CHANNELS</div>{" "}
