@@ -32,7 +32,7 @@ const LoadingPage = () => {
         dnaData: batch,
       });
       batches.push(result.data);
-      setProgressValue((prevValue) => prevValue + 1);
+      setProgressValue((prevValue) => i);
       setProgressData([...progressData, result.data]);
     }
     return batches;
@@ -41,13 +41,15 @@ const LoadingPage = () => {
   const handleYoutubeInformation = useCallback(async (accessToken, email) => {
     let allVideos = [];
     let allDNAData = [];
+    let shortVideos = [];
+    let allShortDNAData = [];
     try {
       const result = await youtubeDataAPIInstacne.get("/videos", {
         params: {
           key: youtubeOauthAPI,
           part: "snippet, statistics, status,contentDetails",
           myRating: "like",
-          maxResults: 50,
+          maxResults: 20,
         },
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -55,24 +57,62 @@ const LoadingPage = () => {
       });
       for (let i = 0; i < result.data.items.length; i++) {
         if (result.data.items[i].snippet.tags != null) {
-          allVideos = [...allVideos, result.data.items[i]];
-          const tags = result.data.items[i].snippet.tags.slice(0, 10);
-          let data = {
-            agentId: email,
-            videoID: result.data.items[i].id,
-            videoTitle: result.data.items[i].snippet.title,
-            videoThumbnail: result.data.items[i].snippet.thumbnails.medium.url,
-            videoDuration: result.data.items[i].contentDetails.duration,
-            uploadDate: result.data.items[i].snippet.publishedAt,
-            categoryID: result.data.items[i].snippet.categoryId,
-            channelID: result.data.items[i].snippet.channelId,
-            channelTitle: result.data.items[i].snippet.channelTitle,
-            description: result.data.items[i].snippet.description,
-            videoTags: tags,
-          };
-          allDNAData = [...allDNAData, data];
+          // To do list
+          // 1. 영상 길이를 통해 쇼츠 영상 구분
+
+          console.log("hi zoo");
+          console.log(
+            result.data.items[i].contentDetails.duration.includes("M")
+          );
+          if (
+            (result.data.items[i].contentDetails.duration.includes("M") ===
+              true ||
+              result.data.items[i].contentDetails.duration.includes("H") ===
+                true) &&
+            result.data.items[i].contentDetails.duration.includes("PT1M") ===
+              false
+          ) {
+            console.log("hi zoo non filtering");
+            allVideos = [...allVideos, result.data.items[i]];
+            const tags = result.data.items[i].snippet.tags.slice(0, 10);
+            let data = {
+              agentId: email,
+              videoID: result.data.items[i].id,
+              videoTitle: result.data.items[i].snippet.title,
+              videoThumbnail:
+                result.data.items[i].snippet.thumbnails.medium.url,
+              videoDuration: result.data.items[i].contentDetails.duration,
+              uploadDate: result.data.items[i].snippet.publishedAt,
+              categoryID: result.data.items[i].snippet.categoryId,
+              channelID: result.data.items[i].snippet.channelId,
+              channelTitle: result.data.items[i].snippet.channelTitle,
+              description: result.data.items[i].snippet.description,
+              videoTags: tags,
+            };
+            allDNAData = [...allDNAData, data];
+          } else {
+            console.log("hi zoo filtering");
+            shortVideos = [...shortVideos, result.data.items[i]];
+            const tags = result.data.items[i].snippet.tags.slice(0, 10);
+            let data = {
+              agentId: email,
+              videoID: result.data.items[i].id,
+              videoTitle: result.data.items[i].snippet.title,
+              videoThumbnail:
+                result.data.items[i].snippet.thumbnails.medium.url,
+              videoDuration: result.data.items[i].contentDetails.duration,
+              uploadDate: result.data.items[i].snippet.publishedAt,
+              categoryID: result.data.items[i].snippet.categoryId,
+              channelID: result.data.items[i].snippet.channelId,
+              channelTitle: result.data.items[i].snippet.channelTitle,
+              description: result.data.items[i].snippet.description,
+              videoTags: tags,
+            };
+            allShortDNAData = [...allShortDNAData, data];
+          }
         }
       }
+      console.log(shortVideos);
       // allVideos = [...allVideos, result.data.items];
       let nextPageToken = result.data.nextPageToken;
       console.log(nextPageToken);
@@ -127,13 +167,19 @@ const LoadingPage = () => {
       setVideos(allVideos);
       setDNA(allDNAData);
       let anaylzedDNA = [];
-      // 클라이언트에서 5개씩 쪼개서 응답 받아오기
+      // 클라이언트에서 1개씩 쪼개서 응답 받아오기
       const batches = await handleProcessBatch(allDNAData, 1);
+      const shortBatches = await handleProcessBatch(allShortDNAData, 1);
+      // 카테고리 분석
       console.log(batches);
-
+      console.log(shortBatches);
+      // dna 비중
       let dnaCustom = [];
+
+      // 내가 좋아하는 채널 ID
       let channelIds = [];
       let totalCount = 0;
+      // 내가 좋아하는 영상 정보
       let videoList = [];
       for (let i = 0; i < batches.length; i++) {
         console.log(batches[i].dna);
@@ -153,13 +199,14 @@ const LoadingPage = () => {
       console.log(channelIds);
       console.log(totalCount);
       console.log(videoList);
-      // let channelIdds = [];
-      // for (let i = 0; i < channelIds.length; i++) {
-      //   console.log(channelIds[i]);
-      //   channelIdds = [...channelIdds, channelIds[i]];
-      // }
-      // console.log(channelIdds);
-      const processedData = dnaCustom.reduce((result, item) => {
+      let channelIdds = [];
+      for (let i = 0; i < channelIds.length; i++) {
+        console.log(channelIds[i]);
+        channelIdds = [...channelIdds, channelIds[i]];
+      }
+      console.log(channelIdds);
+      // dna type 중복 처리해서 리턴하기
+      let processedData = dnaCustom.reduce((result, item) => {
         if (item.dnatype) {
           const existingItem = result.find((x) => x.dnatype === item.dnatype);
           if (existingItem) {
@@ -170,22 +217,25 @@ const LoadingPage = () => {
         }
         return result;
       }, []);
-
+      // 1. Todolist process data 정렬 필요
       console.log(processedData);
+      processedData = processedData.sort((a, b) => b.dnacount - a.dnacount);
+
       let processedDataName = [];
       for (let i = 0; i < processedData.length; i++) {
         processedDataName = [...processedDataName, processedData[i].dnatype];
       }
+      // DNA 정렬 후 명칭 리턴
       console.log(processedDataName);
       let DNATypeList = processedDataName;
       let channelIDList = channelIds;
       DNATypeList = DNATypeList.join(",");
       channelIDList = channelIDList.join(",");
-      // DNATypeList = {
+      // DNATypeList =  {
       //   DNATypeList: DNATypeList.join(","),
       // };
       // channelIDList = {
-      //   channelIDList: channelIDList.join(","),
+      //   c hannelIDList: channelIDList.join(","),
       // };
       setProgressValue(100);
       const result22 = await serverInstance.get("/chatgpt/unknown", {
@@ -196,6 +246,63 @@ const LoadingPage = () => {
       });
       console.log(result22.data);
 
+      // 쇼츠 영상 분석
+      // dna 비중
+      let shortDnaCustom = [];
+
+      // 내가 좋아하는 채널 ID
+      let shortChannelIds = [];
+      let shortTotalCount = 0;
+      // 내가 좋아하는 영상 정보
+      let shortVideoList = [];
+      for (let i = 0; i < shortBatches.length; i++) {
+        console.log(shortBatches[i].dna);
+        console.log(shortBatches[i].videoList);
+        for (let j = 0; j < shortBatches[i].dna.length; j++) {
+          shortDnaCustom = [...shortDnaCustom, shortBatches[i].dna[j]];
+        }
+        for (let j = 0; j < shortBatches[i].videoList.length; j++) {
+          shortChannelIds = [
+            ...shortChannelIds,
+            shortBatches[i].videoList[j].channelID,
+          ];
+        }
+        shortTotalCount += shortBatches[i].dnatotalCount;
+        for (let j = 0; j < shortBatches[i].videoList.length; j++) {
+          shortVideoList = [...shortVideoList, shortBatches[i].videoList[j]];
+        }
+      }
+      console.log(shortDnaCustom);
+      console.log(shortChannelIds);
+      console.log(shortTotalCount);
+      console.log(shortVideoList);
+      let shortChannelIdds = [];
+      for (let i = 0; i < channelIds.length; i++) {
+        console.log(channelIds[i]);
+        shortChannelIdds = [...channelIdds, channelIds[i]];
+      }
+      console.log(shortChannelIdds);
+      // dna type 중복 처리해서 리턴하기
+      let shortProcessedData = dnaCustom.reduce((result, item) => {
+        if (item.dnatype) {
+          const existingItem = result.find((x) => x.dnatype === item.dnatype);
+          if (existingItem) {
+            existingItem.dnacount += item.dnacount;
+          } else {
+            result.push({
+              dnatype: item.dnatype,
+              dnacount: item.dnacount,
+            });
+          }
+        }
+        return result;
+      }, []);
+      // 1. Todolist process data 정렬 필요
+      console.log(shortProcessedData);
+      shortProcessedData = shortProcessedData.sort(
+        (a, b) => b.dnacount - a.dnacount
+      );
+      console.log(shortProcessedData);
       navigate(`/result`, {
         state: {
           dna: processedData,

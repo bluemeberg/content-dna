@@ -13,3 +13,4 @@ export const youtubeDataAPIInstacne = axios.create({
 });
 
 export const youtubeOauthAPI = "AIzaSyCBl9sZ1BbgWzhIPqvJZFoewOVZc4q3HA0";
+export const youtubeGeneralAPI = "AIzaSyDp2Iw7uoEunRQZ-fvNGGw5kry3ZP9uMRs";

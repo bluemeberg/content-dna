@@ -30,6 +30,8 @@
   border-radius: 8px;
   transition: all 400ms ease-in-out 2s;
   animation: fadeIn 400ms;
+  height: 80%;
+  margin-top: 100px;
 }
 
 @keyframes fadeIn {

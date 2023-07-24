@@ -16,9 +16,9 @@ const Nav = (props) => {
     <NavWrapper>
       <Logo>
         {props.color !== "white" ? (
-          <div className="logo__title">MIJI</div>
+          <div className="logo__title">클레잉</div>
         ) : (
-          <div className="logo__title-white">MIJI</div>
+          <div className="logo__title-white">클레잉</div>
         )}
       </Logo>
     </NavWrapper>

@@ -37,6 +37,13 @@ const ChannelTitle = styled.div`
       margin-top: 4px;
     }
   }
+  .detailCategoryBox {
+    font-size: 8px;
+    background: var(--white-white-033, rgba(255, 255, 255, 0.33));
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 12px;
+  }
 `;
 
 export default ChannelTitle;

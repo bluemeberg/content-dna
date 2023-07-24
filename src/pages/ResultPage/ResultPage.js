@@ -7,6 +7,7 @@ import Channel from "../../components/Channel";
 import ChannelModal from "../../components/ChannelModal";
 import ChannelThumbnail from "../../components/ChannelThumbnail";
 import ChannelTitle from "../../components/ChannelTitle";
+import DetailCategoryBox from "../../components/DetailCategoryBox";
 import DNAContent from "../../components/DNAContent";
 import DNAImage from "../../components/DNAImage";
 import { DonwloadBox } from "../../components/DonwloadBox";
@@ -49,7 +50,22 @@ const ResultPage = () => {
     let videos = location.state.videoList;
     const channelCounts = videos.reduce((counts, video) => {
       const channelName = video.channelID;
-      counts[channelName] = (counts[channelName] || 0) + 1;
+      counts[channelName] = counts[channelName] || {
+        count: 0,
+        detailCategories: new Set(),
+      };
+      counts[channelName].count += 1;
+      if (video.detailCategory) {
+        if (Array.isArray(video.detailCategory)) {
+          video.detailCategory.forEach((category) =>
+            counts[channelName].detailCategories.add(category)
+          );
+        } else {
+          counts[channelName].detailCategories.add(video.detailCategory);
+        }
+      }
+      // counts[channelName] = (counts[channelName] || 0) + 1;
+
       return counts;
     }, {});
     const sortedFruits = Object.entries(channelCounts).sort(
@@ -58,7 +74,12 @@ const ResultPage = () => {
     console.log(sortedFruits);
     // console.log(sortedFruits[0][1] / location.state.res.videoList.length);
     for (let i = 0; i < sortedFruits.slice(0, 6).length; i++) {
+      console.log(sortedFruits[i][1].count);
       let channelId = sortedFruits[i][0];
+      let detailCategories = sortedFruits[i][1].detailCategories;
+      console.log(detailCategories);
+      detailCategories = Array.from(detailCategories);
+      console.log(detailCategories);
       const result = await youtubeDataAPIInstacne.get("/channels", {
         params: {
           key: youtubeOauthAPI,
@@ -68,7 +89,7 @@ const ResultPage = () => {
       });
       console.log(result.data);
       let channelRatio = (
-        (sortedFruits[i][1] / location.state.videoList.length) *
+        (sortedFruits[i][1].count / location.state.videoList.length) *
         100
       ).toFixed(2);
       let channelInfo = {
@@ -77,13 +98,14 @@ const ResultPage = () => {
         channelThumbnail: result.data.items[0].snippet.thumbnails.medium.url,
         channelName: result.data.items[0].snippet.title,
         channelSubs: result.data.items[0].statistics.subscriberCount,
+        channelCategories: detailCategories,
       };
       favoriteChannels = [...favoriteChannels, channelInfo];
     }
     setFavorite(favoriteChannels);
   }
   console.log(favorite);
-
+  const maxChannelsPerColumn = 3;
   useEffect(() => {
     const timer = setTimeout(() => {
       getLikedChannelNumbers();
@@ -126,7 +148,9 @@ const ResultPage = () => {
             </DNADisclaimer>
           </DNAType>
         </DNABox>
-        <Title sub="top5">{location.state.name}님이 좋아하는 채널 Top6</Title>
+        <Title sub="top5">
+          {location.state.name}님이 좋아요 누른 채널 Top6
+        </Title>
         {/* Favorite Channels */}
         <ChannelBox>
           {favorite.map((item) => (
@@ -140,6 +164,9 @@ const ResultPage = () => {
                   {convertToShortNumber(item.channelSubs)}
                 </div>
                 <div className="channelRatio">({item.channelRatio}%)</div>
+                {item.channelCategories.map((item) => (
+                  <div className="detailCategoryBox">{item}</div>
+                ))}
               </ChannelTitle>
             </Channel>
           ))}
@@ -148,37 +175,67 @@ const ResultPage = () => {
           {location.state.name}님이 아직 좋아하지 않지만 <br></br> 성향에 맞을
           수 있는 채널을 골라봤어
           <div className="subTitle">
-            유튜브 인기 영상의 채널 그리고 당신과 동일한 성향을 가진 "157"명의
-            사람들이 구독하고 있는 채널입니다.<br></br>새로운 채널을
-            발견해보세요!
+            유튜브 인기 영상의 채널 그리고 당신과 동일한 성향을 가진 사람들이
+            즐겨보는 채널입니다.<br></br>새로운 채널을 발견해보세요!
           </div>
         </Title>
         <UnknownChannelBox>
-          <ChannelBox>
-            {location.state.unknown.unknown[1].channelList
-              .slice(0, 6)
-              .map((item) => (
-                <Channel onClick={() => handleUnknownClick(item)}>
-                  <ChannelThumbnail>
-                    <img src={item.channelThumbnail} alt="favorite" />
-                  </ChannelThumbnail>
-                  <ChannelTitle>
-                    <div className="channelTitle">{item.channelTitle}</div>
-                    <div className="channelSubscriber">
-                      {convertToShortNumber(item.channelSubscribeCount)}
-                    </div>
-                  </ChannelTitle>
-                </Channel>
-              ))}
-          </ChannelBox>
+          {/* To do list */}
+          {/* 1. Channel에서 카테고리 영역 추가 */}
+          {/* 2. DNA 비중 높은 순으로 max3개씩 보여주고, 총 6개를 보여줌.
+          카채널이 없을 시 다른 카테고리로 넘길 수 있는 기능  */}
+          <div className="unknownChannelContainer">
+            {location.state.unknown.unknown.map((item, index) => (
+              <div className="channelContainer" key={index}>
+                <div className="detailUnknownCategoryBox">
+                  {item.detailCategory}
+                </div>
+                <div className="channelElement">
+                  {item.channelList
+                    .slice(0, maxChannelsPerColumn)
+                    .map((channel, channelIndex) => (
+                      <Channel
+                        key={channelIndex}
+                        onClick={() => handleUnknownClick(channel)}
+                      >
+                        <div className="unknownChannel">
+                          <ChannelThumbnail>
+                            <img
+                              src={channel.channelThumbnail}
+                              alt="favorite"
+                            />
+                          </ChannelThumbnail>
+                          <ChannelTitle>
+                            <div className="channelTitle">
+                              {channel.channelTitle}
+                            </div>
+                            <div className="channelSubscriber">
+                              {convertToShortNumber(
+                                channel.channelSubscribeCount
+                              )}
+                            </div>
+                          </ChannelTitle>
+                        </div>
+                      </Channel>
+                    ))}
+                </div>
+                {item.channelList.length > maxChannelsPerColumn && (
+                  <div className="moreChannelNoti">
+                    + {item.channelList.length - maxChannelsPerColumn}개의 더
+                    많은 채널이 있습니다.
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </UnknownChannelBox>
-        {/* <BlurBox></BlurBox> */}
+        <BlurBox></BlurBox>
         <DownloadTitle>
           DOWNLOAD APP
           <div className="subTitle">TO FIND OUT MORE UNKNOWN CHANNELS</div>{" "}
           <Channel>
             <UnknownChannel>
-              <UnknownChannelBlur>+21 more</UnknownChannelBlur>
+              <UnknownChannelBlur>+120 more</UnknownChannelBlur>
               <ChannelThumbnail>
                 <img
                   src="https://i.ytimg.com/vi/RU8jSdvcpc8/sddefault.jpg"
@@ -202,12 +259,12 @@ const ResultPage = () => {
       </ContainerBox>
       {/* 내가 좋아할 만한 채널 알려주기 */}
       {/* 카테고리 베이스 */}
-      {/* {modalOpen && (
+      {modalOpen && (
         <ChannelModal
           unknownChannelSelected={unknownChannelSelected}
           setModalOpen={setModalOpen}
         />
-      )} */}
+      )}
     </Container>
   );
 };
@@ -242,7 +299,7 @@ const ContainerBox = styled.div`
   @media (max-width: 1200px) {
     width: 340px;
     margin-top: 80px;
-    height: 1120px;
+    height: 1440px;
   }
 `;
 
@@ -299,15 +356,80 @@ const ChannelBox = styled.div`
   margin-left: 100px;
   margin-right: 100px;
   @media (max-width: 1200px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .unknownChannelContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+  }
+  .channelContainer {
+    display: flex;
+    flex-direction: column;
+  }
+  .detailUnknownCategoryBox {
+    font-size: 14px;
+    background: var(--white-white-033, rgba(255, 255, 255, 0.33));
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 12px;
+    color: white;
+    display: flex;
+    justify-content: center;
+  }
+  .channelElement {
+    display: flex;
+  }
+  .moreChannelNoti {
+    color: white;
   }
 `;
 
 const UnknownChannelBox = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  margin-top: 40px;
   justify-content: center;
-  flex-direction: column;
   align-items: center;
+  margin-bottom: 80px;
+  margin-left: 100px;
+  margin-right: 100px;
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .unknownChannelContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    align-items: center;
+    justify-content: center;
+  }
+  .channelContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  .detailUnknownCategoryBox {
+    font-size: 14px;
+    background: var(--white-white-033, rgba(255, 255, 255, 0.33));
+    border-radius: 8px;
+    padding: 8px;
+    margin-top: 12px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    width: 280px;
+  }
+  .channelElement {
+    display: flex;
+    margin-top: 20px;
+  }
+  .moreChannelNoti {
+    color: white;
+    margin-top: 32px;
+  }
 `;
 
 const UnknownChannel = styled.div`
@@ -332,9 +454,9 @@ const BlurBox = styled.div`
   background: linear-gradient(0deg, #24242d 0%, rgba(36, 36, 45, 0.9) 100%);
   position: relative;
   @media (max-width: 1200px) {
-    height: 450px;
+    height: 3000px;
     font-size: 18px;
-    margin-top: -500px;
+    margin-top: -2200px;
   }
 `;
 
@@ -345,6 +467,7 @@ const DonwloadAPPImage = styled.div`
   img {
     margin-right: 40px;
     margin-left: 40px;
+
     @media (max-width: 1200px) {
       margin-right: 20px;
       margin-left: 20px;

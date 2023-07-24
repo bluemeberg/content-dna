@@ -80,7 +80,7 @@ export const dnaData = {
             channelTitle: "돈되는 상식!",
           },
         ],
-        detailCategory: "Business&Entrepreneurship",
+        detailCategory: "Motivation",
       },
       {
         channelList: null,
@@ -97,7 +97,7 @@ export const dnaData = {
             channelTitle: "돈되는 상식!",
           },
         ],
-        detailCategory: "Business&Entrepreneurship",
+        detailCategory: "Sports",
       },
     ],
   },
@@ -110,6 +110,37 @@ export const dnaData = {
       description:
         '[ 필미필미TV의 모든 영상은 영어교육 및 동기부여를 목적으로 제작되었습니다 ]\n\n전기차 회사 테슬라모터스 및 우주여행 프로젝트 스페이스엑스의 최고 경영자 엘론 머스크 입니다.\n단순히 돈을 번다는 차원을 넘어선 그의 사업 마인드 그리고 포부를 한영자막과 함께 배워보시죠! \n\n\n\n#엘론머스크 #로켓회수 #화성식민지\n\n\n\n★ 자막 & 편집 : 필미필미TV\n\n \n▶ Source\n    - https://www.youtube.com/user/spacexchannel (spacex)\n    - https://www.youtube.com/user/NationalGeographic (national geographic)\n    - https://www.youtube.com/user/natgeokorea (national geographic korea)\n    - https://www.youtube.com/user/TEDtalksDirector (ted)\n    - https://www.youtube.com/user/GovSummit (world Government Summit)\n    - https://www.youtube.com/user/stanfordbusiness (Stanford Graduate School of Business)\n    - Video blocks\n\n\n▶ Music\n    - ReachingtheSummit_by_CKMartin_Artlist\n    - Downfall_by_CKMartin_Artlist\n    - TheTraveler_by_CKMartin_Artlist\n\n\n\n▶ FAIR USE DISCLAIMER\n\n* Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, commenting, news reporting, teaching, scholarship, and research. Fair use is a use permitted by copyright statute that might otherwise be infringing. Non-profit, educational or personal use tips the balance in favor of fair use.\n\n \n\n  1. This video is for teaching purposes.\n  2. There is no transformation of original works.\n  3. Video clips and images were used for very small part to help understand.\n  4. This video has no negative impact on market value of original.\n\n \n\nFeelmeFillme channel does not own the rights to these video clips. They have, in accordance with fair use, been repurposed with the intent of educating and inspiring others. However, if any content owners would like their images removed, please contact us by email at Feelmefillmetv@gmail.com',
       detailCategory: "Business&Entrepreneurship",
+      firstAnswer: null,
+      firstQuestion:
+        "영상제목: ★엘론 머스크 인터뷰★ 지구에서 감당하기 힘든 꿈의 크기 [한영자막]\n영상태그: 엘론 머스크, 엘론 머스크 인터뷰, 일론 머스크 인터뷰, 엘론 머스크 로켓회수, 스페이스x, 테슬라, 솔라시티, 엘론 머스크 화성, 테슬라 모델3, 스페이스x 로켓회수 \n해당 영상의 카테고리 분류해서 대답할 때  Science Experiments, History and Culture, Language Learning, Art and Creativity, Computer Programming, Business&Entrepreneurship, SelfImprovement&Motivation, Marketing, Humanities and Politics, Career and Vocational Guidance, Scientific Theories and Concepts, IT/Tech Reviews, Space and Astronomy, Robotics Engineering and Mobility, Environment and Sustainability, Artificial Intelligence, ETC 카테고리 중에서 카테고리명만 [카테고리] 형식으로 알려줘\n이때 대답은 대화형식이 아닌 한 단어로 단답해줘",
+      keyword: null,
+      uploadDate: "2020-06-07T14:50:19Z",
+      videoDuration: "PT10M2S",
+      videoID: "2aa60WD9B8M",
+      videoTags: [
+        "엘론 머스크",
+        "엘론 머스크 인터뷰",
+        "일론 머스크 인터뷰",
+        "엘론 머스크 로켓회수",
+        "스페이스x",
+        "테슬라",
+        "솔라시티",
+        "엘론 머스크 화성",
+        "테슬라 모델3",
+        "스페이스x 로켓회수",
+      ],
+      videoThumbnail: "https://i.ytimg.com/vi/2aa60WD9B8M/mqdefault.jpg",
+      videoTitle:
+        "★엘론 머스크 인터뷰★ 지구에서 감당하기 힘든 꿈의 크기 [한영자막]",
+    },
+    {
+      agentID: null,
+      categoryID: 27,
+      channelID: "UCR7YyVFOK_pJS8n8dQzh6Xw",
+      channelTitle: "필미필미TV",
+      description:
+        '[ 필미필미TV의 모든 영상은 영어교육 및 동기부여를 목적으로 제작되었습니다 ]\n\n전기차 회사 테슬라모터스 및 우주여행 프로젝트 스페이스엑스의 최고 경영자 엘론 머스크 입니다.\n단순히 돈을 번다는 차원을 넘어선 그의 사업 마인드 그리고 포부를 한영자막과 함께 배워보시죠! \n\n\n\n#엘론머스크 #로켓회수 #화성식민지\n\n\n\n★ 자막 & 편집 : 필미필미TV\n\n \n▶ Source\n    - https://www.youtube.com/user/spacexchannel (spacex)\n    - https://www.youtube.com/user/NationalGeographic (national geographic)\n    - https://www.youtube.com/user/natgeokorea (national geographic korea)\n    - https://www.youtube.com/user/TEDtalksDirector (ted)\n    - https://www.youtube.com/user/GovSummit (world Government Summit)\n    - https://www.youtube.com/user/stanfordbusiness (Stanford Graduate School of Business)\n    - Video blocks\n\n\n▶ Music\n    - ReachingtheSummit_by_CKMartin_Artlist\n    - Downfall_by_CKMartin_Artlist\n    - TheTraveler_by_CKMartin_Artlist\n\n\n\n▶ FAIR USE DISCLAIMER\n\n* Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, commenting, news reporting, teaching, scholarship, and research. Fair use is a use permitted by copyright statute that might otherwise be infringing. Non-profit, educational or personal use tips the balance in favor of fair use.\n\n \n\n  1. This video is for teaching purposes.\n  2. There is no transformation of original works.\n  3. Video clips and images were used for very small part to help understand.\n  4. This video has no negative impact on market value of original.\n\n \n\nFeelmeFillme channel does not own the rights to these video clips. They have, in accordance with fair use, been repurposed with the intent of educating and inspiring others. However, if any content owners would like their images removed, please contact us by email at Feelmefillmetv@gmail.com',
+      detailCategory: "Motivation",
       firstAnswer: null,
       firstQuestion:
         "영상제목: ★엘론 머스크 인터뷰★ 지구에서 감당하기 힘든 꿈의 크기 [한영자막]\n영상태그: 엘론 머스크, 엘론 머스크 인터뷰, 일론 머스크 인터뷰, 엘론 머스크 로켓회수, 스페이스x, 테슬라, 솔라시티, 엘론 머스크 화성, 테슬라 모델3, 스페이스x 로켓회수 \n해당 영상의 카테고리 분류해서 대답할 때  Science Experiments, History and Culture, Language Learning, Art and Creativity, Computer Programming, Business&Entrepreneurship, SelfImprovement&Motivation, Marketing, Humanities and Politics, Career and Vocational Guidance, Scientific Theories and Concepts, IT/Tech Reviews, Space and Astronomy, Robotics Engineering and Mobility, Environment and Sustainability, Artificial Intelligence, ETC 카테고리 중에서 카테고리명만 [카테고리] 형식으로 알려줘\n이때 대답은 대화형식이 아닌 한 단어로 단답해줘",

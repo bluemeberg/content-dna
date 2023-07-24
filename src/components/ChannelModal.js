@@ -1,7 +1,11 @@
 import React from "react";
+import { convertToShortNumber } from "../ustils/FortmatNumber";
 import "./ChannelModal.css";
+import ChannelThumbnail from "./ChannelThumbnail";
+import ChannelTitle from "./ChannelTitle";
 const ChannelModal = (props) => {
   console.log(props);
+  console.log(props.unknownChannelSelected);
   return (
     <div className="presentation" role="presentation">
       <div className="wrapper-modal">
@@ -12,14 +16,23 @@ const ChannelModal = (props) => {
           >
             X
           </span>
-          <img className="modal__poster-img" alt="modal-img" />
           <div className="modal__content">
-            <p className="modal__details">
-              <span className="modal__user_perc">100% for you</span>
-            </p>
-            <h2 className="modal__title"></h2>
-            <p className="modal__overview">평점 : </p>
-            <p className="modal__overview"></p>
+            <ChannelThumbnail>
+              <img
+                src={props.unknownChannelSelected.channelThumbnail}
+                alt="favorite"
+              />
+            </ChannelThumbnail>
+            <ChannelTitle>
+              <div className="channelTitle">
+                {props.unknownChannelSelected.channelTitle}
+              </div>
+              <div className="channelSubscriber">
+                {convertToShortNumber(
+                  props.unknownChannelSelected.channelSubscribeCount
+                )}
+              </div>
+            </ChannelTitle>
           </div>
         </div>
       </div>
