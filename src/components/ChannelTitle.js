@@ -9,12 +9,13 @@ const ChannelTitle = styled.div`
   .channelTitle {
     margin-top: 12px;
     font-size: 20px;
-    max-width: 120px;
-    min-height: 48px;
+    max-width: 200px;
     font-weight: 500;
     text-align: center;
+    margin-left: 20px;
+    margin-bottom: 8px;
     @media (max-width: 1200px) {
-      font-size: 14px;
+      font-size: 16px;
     }
   }
   .channelSubscriber {

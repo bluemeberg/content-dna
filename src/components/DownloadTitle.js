@@ -27,7 +27,7 @@ const DownloadTitle = styled.div`
   @media (max-width: 1200px) {
     width: 320px;
     font-size: 18px;
-    margin-top: -2400px;
+    /* margin-top: -2400px; */
   }
 `;
 

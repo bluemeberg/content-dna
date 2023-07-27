@@ -38,6 +38,7 @@ const LoadingPage = () => {
       setProgressValue((prevValue) => i);
       setProgressData([...progressData, result.data]);
       setVideoThumbnail(data[i].videoThumbnail);
+      setVideoTitle(data[i].videoTitle);
       console.log(data);
     }
     return batches;
@@ -48,7 +49,73 @@ const LoadingPage = () => {
     let allDNAData = [];
     let shortVideos = [];
     let allShortDNAData = [];
+    let mySubs = [];
     try {
+      const resultSubs = await youtubeDataAPIInstacne.get("/subscriptions", {
+        params: {
+          key: youtubeOauthAPI,
+          part: "snippet, contentDetails",
+          mine: true,
+          maxResults: 50,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      let nextSubsPageToken = resultSubs.data.nextPageToken;
+      console.log(nextSubsPageToken);
+      console.log(resultSubs.data);
+      for (let i = 0; i < resultSubs.data.items.length; i++) {
+        mySubs = [
+          ...mySubs,
+          resultSubs.data.items[i].snippet.resourceId.channelId,
+        ];
+      }
+      if (nextSubsPageToken !== undefined) {
+        while (true) {
+          const resultSubs = await youtubeDataAPIInstacne.get(
+            "/subscriptions",
+            {
+              params: {
+                key: youtubeOauthAPI,
+                part: "snippet, contentDetails",
+                mine: true,
+                maxResults: 50,
+                pageToken: nextSubsPageToken,
+              },
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
+          nextSubsPageToken = resultSubs.data.nextPageToken;
+          for (let i = 0; i < resultSubs.data.items.length; i++) {
+            mySubs = [
+              ...mySubs,
+              resultSubs.data.items[i].snippet.resourceId.channelId,
+            ];
+          }
+          console.log(resultSubs.data);
+          if (!resultSubs.data.nextPageToken) {
+            break;
+          }
+        }
+      }
+      console.log(mySubs);
+
+      const resultPlaylists = await youtubeDataAPIInstacne.get("/playlists", {
+        params: {
+          key: youtubeOauthAPI,
+          part: "id",
+          mine: true,
+          maxResults: 50,
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log(resultPlaylists.data);
+
       const result = await youtubeDataAPIInstacne.get("/videos", {
         params: {
           key: youtubeOauthAPI,
@@ -64,7 +131,6 @@ const LoadingPage = () => {
         if (result.data.items[i].snippet.tags != null) {
           // To do list
           // 1. 영상 길이를 통해 쇼츠 영상 구분
-
           console.log("hi zoo");
           console.log(
             result.data.items[i].contentDetails.duration.includes("M")
@@ -117,7 +183,6 @@ const LoadingPage = () => {
           }
         }
       }
-      console.log(shortVideos);
       // allVideos = [...allVideos, result.data.items];
       let nextPageToken = result.data.nextPageToken;
       console.log(nextPageToken);
@@ -138,22 +203,59 @@ const LoadingPage = () => {
           });
           for (let i = 0; i < result.data.items.length; i++) {
             if (result.data.items[i].snippet.tags != null) {
-              allVideos = [...allVideos, result.data.items[i]];
-              const tags = result.data.items[i].snippet.tags.slice(0, 10);
-              let data = {
-                videoID: result.data.items[i].id,
-                videoTitle: result.data.items[i].snippet.title,
-                videoThumbnail:
-                  result.data.items[i].snippet.thumbnails.medium.url,
-                videoDuration: result.data.items[i].contentDetails.duration,
-                uploadDate: result.data.items[i].snippet.publishedAt,
-                categoryID: result.data.items[i].snippet.categoryId,
-                channelID: result.data.items[i].snippet.channelId,
-                channelTitle: result.data.items[i].snippet.channelTitle,
-                description: result.data.items[i].snippet.description,
-                videoTags: tags,
-              };
-              allDNAData = [...allDNAData, data];
+              // To do list
+              // 1. 영상 길이를 통해 쇼츠 영상 구분
+              console.log("hi zoo");
+              console.log(
+                result.data.items[i].contentDetails.duration.includes("M")
+              );
+              if (
+                (result.data.items[i].contentDetails.duration.includes("M") ===
+                  true ||
+                  result.data.items[i].contentDetails.duration.includes("H") ===
+                    true) &&
+                result.data.items[i].contentDetails.duration.includes(
+                  "PT1M"
+                ) === false
+              ) {
+                console.log("hi zoo non filtering");
+                allVideos = [...allVideos, result.data.items[i]];
+                const tags = result.data.items[i].snippet.tags.slice(0, 10);
+                let data = {
+                  agentId: email,
+                  videoID: result.data.items[i].id,
+                  videoTitle: result.data.items[i].snippet.title,
+                  videoThumbnail:
+                    result.data.items[i].snippet.thumbnails.medium.url,
+                  videoDuration: result.data.items[i].contentDetails.duration,
+                  uploadDate: result.data.items[i].snippet.publishedAt,
+                  categoryID: result.data.items[i].snippet.categoryId,
+                  channelID: result.data.items[i].snippet.channelId,
+                  channelTitle: result.data.items[i].snippet.channelTitle,
+                  description: result.data.items[i].snippet.description,
+                  videoTags: tags,
+                };
+                allDNAData = [...allDNAData, data];
+              } else {
+                console.log("hi zoo filtering");
+                shortVideos = [...shortVideos, result.data.items[i]];
+                const tags = result.data.items[i].snippet.tags.slice(0, 10);
+                let data = {
+                  agentId: email,
+                  videoID: result.data.items[i].id,
+                  videoTitle: result.data.items[i].snippet.title,
+                  videoThumbnail:
+                    result.data.items[i].snippet.thumbnails.medium.url,
+                  videoDuration: result.data.items[i].contentDetails.duration,
+                  uploadDate: result.data.items[i].snippet.publishedAt,
+                  categoryID: result.data.items[i].snippet.categoryId,
+                  channelID: result.data.items[i].snippet.channelId,
+                  channelTitle: result.data.items[i].snippet.channelTitle,
+                  description: result.data.items[i].snippet.description,
+                  videoTags: tags,
+                };
+                allShortDNAData = [...allShortDNAData, data];
+              }
             }
           }
           console.log(result.data.nextPageToken);
@@ -168,6 +270,7 @@ const LoadingPage = () => {
           cnt += 1;
         }
       }
+      console.log(shortVideos);
       // 서버 송신
       setVideos(allVideos);
       setDNA(allDNAData);
@@ -282,13 +385,13 @@ const LoadingPage = () => {
       console.log(shortTotalCount);
       console.log(shortVideoList);
       let shortChannelIdds = [];
-      for (let i = 0; i < channelIds.length; i++) {
-        console.log(channelIds[i]);
-        shortChannelIdds = [...channelIdds, channelIds[i]];
+      for (let i = 0; i < shortChannelIds.length; i++) {
+        console.log(shortChannelIds[i]);
+        shortChannelIdds = [...shortChannelIdds, shortChannelIds[i]];
       }
       console.log(shortChannelIdds);
       // dna type 중복 처리해서 리턴하기
-      let shortProcessedData = dnaCustom.reduce((result, item) => {
+      let shortProcessedData = shortDnaCustom.reduce((result, item) => {
         if (item.dnatype) {
           const existingItem = result.find((x) => x.dnatype === item.dnatype);
           if (existingItem) {
@@ -315,6 +418,8 @@ const LoadingPage = () => {
           unknown: result22.data,
           name: location.state.name,
           videoList: videoList,
+          shortdna: shortProcessedData,
+          shortCount: shortTotalCount,
         },
       });
     } catch (error) {
@@ -347,7 +452,10 @@ const LoadingPage = () => {
       ) : (
         progressData.map((item) => <SubTitle>{item.dna[0].dnatype}</SubTitle>)
       )}
-      <img src={videoThumbnail} width={320} height={180}></img>
+      <div className="DNAVideoInfo">
+        <img src={videoThumbnail} width={320} height={180} alt="DNAThumbnail" />
+        <div className="DNAVideoTitle">{videoTitle}</div>
+      </div>
       <Error>진행이 멈춰있으면 다시 시작하기 버튼을 눌러주세요.</Error>
       <Button onClick={handleYoutubeInformation}>다시 분석하기</Button>
     </Container>
@@ -364,6 +472,16 @@ const Container = styled.main`
   padding: 0 calc(3.5vw + 5px);
   background: #1c1e27;
   height: 100vh;
+  .DNAVideoInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    .DNAVideoTitle {
+      color: white;
+      margin-top: 12px;
+    }
+  }
 `;
 
 const Title = styled.div`
@@ -392,7 +510,7 @@ const Error = styled.div`
   font-size: 16px;
   margin-top: 12px;
   color: white;
-  margin-top: 200px;
+  margin-top: 120px;
 `;
 
 const Image = styled.div`
@@ -426,5 +544,6 @@ const Button = styled.button`
     letter-spacing: 0.22px;
     margin-left: 90px;
     margin-top: 10px;
+    margin-bottom: 120px;
   }
 `;

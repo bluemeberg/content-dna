@@ -264,6 +264,16 @@ const ResultPage = () => {
             <img src="/images/Google.png" alt="google" />
           </DonwloadAPPImage>
         </DownloadTitle>
+        <div className="rawData">
+          <div className="rawDataTitle">*추가 참고용 RAW DATA</div>총{" "}
+          {location.state.shortCount}개의 좋아요를 누른 쇼츠 영상이 존재합니다.
+          {location.state.shortdna.map((item) => (
+            <div className="rawDataBox">
+              <div className="rawDataShortType">카테고리 : {item.dnatype} </div>
+              <div className="rawDataShortCount">{item.dnacount}개</div>
+            </div>
+          ))}
+        </div>
       </ContainerBox>
       {/* 내가 좋아할 만한 채널 알려주기 */}
       {/* 카테고리 베이스 */}
@@ -288,6 +298,22 @@ const Container = styled.main`
   padding: 0 calc(3.5vw + 5px);
   height: 100vh;
   background: #24242d;
+  .rawDataTitle {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  .rawDataBox {
+    margin-top: 8px;
+    display: flex;
+    margin-bottom: 8px;
+  }
+  .rawData {
+    color: white;
+    margin-bottom: 20px;
+  }
+  .rawDataShortType {
+    margin-right: 8px;
+  }
 `;
 
 const ContainerBox = styled.div`
@@ -471,7 +497,7 @@ const BlurBox = styled.div`
 const DonwloadAPPImage = styled.div`
   display: flex;
   margin-top: 36px;
-  margin-bottom: 200px;
+  margin-bottom: 40px;
   img {
     margin-right: 40px;
     margin-left: 40px;
